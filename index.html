@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cymatic Simulation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <canvas id="cymaticCanvas"></canvas>
+        <div class="controls">
+            <div>
+                <label for="frequency">Frequency: <span id="frequencyValue">440</span> Hz</label>
+                <input type="range" id="frequency" min="20" max="2000" step="1" value="440">
+            </div>
+            <div>
+                <label for="amplitude">Amplitude: <span id="amplitudeValue">50</span></label>
+                <input type="range" id="amplitude" min="1" max="100" step="1" value="50">
+            </div>
+            <div>
+                <label for="damping">Damping: <span id="dampingValue">0.95</span></label>
+                <input type="range" id="damping" min="0.8" max="0.99" step="0.01" value="0.95">
+            </div>
+            <div>
+                <label for="resolution">Resolution: <span id="resolutionValue">1000</span></label>
+                <input type="range" id="resolution" min="1000" max="3000" step="100" value="1000">
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+
