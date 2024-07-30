@@ -1,15 +1,15 @@
-uniform float uFrequency;
-uniform float uAmplitude;
-uniform float uDamping;
 uniform float uTime;
+uniform sampler2D uVelocity;
+uniform sampler2D uPressure;
 varying vec2 vUv;
 
 void main() {
-  float x = vUv.x * 10.0 - 5.0;
-  float y = vUv.y * 10.0 - 5.0;
-  float r = sqrt(x * x + y * y);
-  float wave = sin(uFrequency * r - uTime) * exp(-uDamping * r);
-  float intensity = (wave + 1.0) / 2.0 * uAmplitude;
-  gl_FragColor = vec4(vec3(intensity), 1.0);
-}
+  vec2 velocity = texture2D(uVelocity, vUv).xy;
+  vec2 pressure = texture2D(uPressure, vUv).xy;
 
+  // Compute new velocity and pressure using Navier-Stokes equations
+  // Simplified example: u = u + dt * (Nabla(u) + F)
+  vec2 newVelocity = velocity + 0.01 * (pressure - velocity);
+
+  gl_FragColor = vec4(newVelocity, 0.0, 1.0);
+}

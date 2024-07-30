@@ -7,35 +7,56 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const camera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 0.1, 1000);
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(container.clientWidth, container.clientHeight);
   container.appendChild(renderer.domElement);
 
-  const geometry = new THREE.PlaneGeometry(2, 2);
-  const material = new THREE.ShaderMaterial({
-    vertexShader: document.getElementById('vertexShader').textContent,
-    fragmentShader: document.getElementById('fragmentShader').textContent,
-    uniforms: {
-      uFrequency: { value: 440.0 },
-      uAmplitude: { value: 0.5 },
-      uDamping: { value: 0.95 },
-      uTime: { value: 0.0 }
+  const vertexShader = `
+    varying vec2 vUv;
+    void main() {
+      vUv = uv;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
+  `;
+
+  const fragmentShader = `
+    uniform float uTime;
+    uniform sampler2D uVelocity;
+    uniform sampler2D uPressure;
+    varying vec2 vUv;
+
+    void main() {
+      vec2 velocity = texture2D(uVelocity, vUv).xy;
+      vec2 pressure = texture2D(uPressure, vUv).xy;
+
+      // Compute new velocity and pressure using Navier-Stokes equations
+      vec2 newVelocity = velocity + 0.01 * (pressure - velocity);
+
+      gl_FragColor = vec4(newVelocity, 0.0, 1.0);
+    }
+  `;
+
+  const uniforms = {
+    uTime: { value: 0.0 },
+    uVelocity: { value: null },
+    uPressure: { value: null }
+  };
+
+  const material = new THREE.ShaderMaterial({
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader,
+    uniforms: uniforms
   });
 
+  const geometry = new THREE.PlaneGeometry(2, 2);
   const plane = new THREE.Mesh(geometry, material);
   scene.add(plane);
+
   camera.position.z = 1;
 
-  let lastTime = 0;
-
   function animate(time) {
-    const delta = time - lastTime;
-    lastTime = time;
-
-    material.uniforms.uTime.value += delta * 0.001;
-
+    uniforms.uTime.value = time * 0.001;
     renderer.render(scene, camera);
     requestAnimationFrame(animate);
   }
@@ -43,9 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
   animate();
 
   function updateUniforms() {
-    material.uniforms.uFrequency.value = parseFloat(document.getElementById('frequency').value);
-    material.uniforms.uAmplitude.value = parseFloat(document.getElementById('amplitude').value) / 100;
-    material.uniforms.uDamping.value = parseFloat(document.getElementById('damping').value);
+    // Update uniform values based on user input
+    // This function can be expanded to include more uniforms
   }
 
   document.getElementById('frequency').addEventListener('input', () => {
@@ -61,11 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('damping').addEventListener('input', () => {
     document.getElementById('dampingValue').textContent = document.getElementById('damping').value;
     updateUniforms();
-  });
-
-  document.getElementById('resolution').addEventListener('input', () => {
-    document.getElementById('resolutionValue').textContent = document.getElementById('resolution').value;
-    // Regenerate particles based on new resolution
   });
 
   window.addEventListener('resize', () => {

@@ -10,22 +10,22 @@ body {
 
 .container {
   display: flex;
-  flex-direction: row;
   width: 100%;
   max-width: 1200px;
+  height: 100%;
   background: white;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 #threejs-container {
-  width: 60%;
-  height: 100%;
-  position: relative;
+  flex: 1;
+  background-color: #000;
 }
 
 .controls {
-  width: 40%;
+  flex: 0 0 300px;
   padding: 20px;
   display: flex;
   flex-direction: column;
