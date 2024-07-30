@@ -4,27 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cymatic Simulation</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 </head>
 <body>
-    <div id="container">
-        <div id="threejs-container"></div>
+    <div class="container">
+        <canvas id="threejs-canvas"></canvas>
         <div class="controls">
-            <div>
-                <label for="frequency">Frequency: <span id="frequencyValue">440</span> Hz</label>
-                <input type="range" id="frequency" min="20" max="2000" step="1" value="440">
-            </div>
-            <div>
-                <label for="amplitude">Amplitude: <span id="amplitudeValue">50</span></label>
-                <input type="range" id="amplitude" min="1" max="100" step="1" value="50">
-            </div>
-            <div>
-                <label for="damping">Damping: <span id="dampingValue">0.95</span></label>
-                <input type="range" id="damping" min="0.01" max="1" step="0.01" value="0.95">
-            </div>
+            <label for="frequency">Frequency: <span id="frequencyValue">440</span> Hz</label>
+            <input type="range" id="frequency" min="20" max="2000" step="1" value="440">
+            
+            <label for="amplitude">Amplitude: <span id="amplitudeValue">50</span></label>
+            <input type="range" id="amplitude" min="1" max="100" step="1" value="50">
+            
+            <label for="damping">Damping: <span id="dampingValue">0.05</span></label>
+            <input type="range" id="damping" min="0.01" max="1.0" step="0.01" value="0.05">
         </div>
     </div>
+    <script id="vertexShader" type="x-shader/x-vertex">
+        varying vec2 vUv;
+
+        void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    </script>
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        uniform float uFrequency;
+        uniform float uAmplitude;
+        uniform float uDamping;
+        uniform float uTime;
+        varying vec2 vUv;
+
+        void main() {
+            float x = vUv.x * 20.0 - 10.0;
+            float y = vUv.y * 20.0 - 10.0;
+            float r = sqrt(x * x + y * y);
+            float wave = sin(uFrequency * r - uTime) * exp(-uDamping * r);
+            float intensity = (wave + 1.0) / 2.0 * uAmplitude;
+            gl_FragColor = vec4(vec3(intensity), 1.0);
+        }
+    </script>
     <script src="script.js" defer></script>
 </body>
 </html>

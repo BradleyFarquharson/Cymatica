@@ -7,34 +7,28 @@ body {
     background-color: #f0f0f0;
 }
 
-#container {
+.container {
     display: flex;
-    flex-direction: row;
     align-items: center;
 }
 
-#threejs-container {
-    width: 800px;
-    height: 800px;
-    background-color: black;
-    border-radius: 10px;
+#threejs-canvas {
+    width: 50vw;
+    height: 100vh;
 }
 
 .controls {
+    display: flex;
+    flex-direction: column;
     margin-left: 20px;
 }
 
-.controls div {
-    margin-bottom: 10px;
-}
-
-label {
-    display: block;
-    font-family: Arial, sans-serif;
+.controls label {
     margin-bottom: 5px;
 }
 
-input[type="range"] {
+.controls input[type="range"] {
+    margin-bottom: 20px;
     width: 200px;
 }
 
