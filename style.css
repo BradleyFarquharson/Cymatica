@@ -1,33 +1,47 @@
-body, html {
+body {
   margin: 0;
-  padding: 0;
-  overflow: hidden;
-  background-color: black;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f0f0;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: 1200px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 #threejs-container {
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  left: 0;
+  width: 60%;
+  height: 100%;
+  position: relative;
 }
 
 .controls {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 10px;
-  border-radius: 5px;
+  width: 40%;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
-.controls label {
+.controls div {
+  margin-bottom: 20px;
+}
+
+label {
   display: block;
   margin-bottom: 5px;
 }
 
-.controls input[type="range"] {
+input[type="range"] {
   width: 100%;
 }
 
