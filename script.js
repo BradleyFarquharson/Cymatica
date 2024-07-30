@@ -48,3 +48,17 @@ document.addEventListener('DOMContentLoaded', () => {
     animate();
 });
 
+    });
+
+    controls.damping.addEventListener('input', (event) => {
+        material.uniforms.uDamping.value = event.target.value;
+    });
+
+    function animate() {
+        material.uniforms.uTime.value += 0.05;
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+    }
+    animate();
+});
+
