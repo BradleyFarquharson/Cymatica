@@ -1,5 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
     const container = document.getElementById('threejs-container');
+    if (!container) {
+        console.error('Three.js container not found');
+        return;
+    }
+    
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     const renderer = new THREE.WebGLRenderer();
@@ -17,8 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 0; i < resolution; i++) {
         for (let j = 0; j < resolution; j++) {
             const index = (i * resolution + j) * 3;
-            positions[index] = (i / resolution) * 10 - 5;
-            positions[index + 1] = (j / resolution) * 10 - 5;
+            positions[index] = (i / resolution) * 20 - 10;
+            positions[index + 1] = (j / resolution) * 20 - 10;
             positions[index + 2] = 0;
         }
     }
@@ -76,8 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < resolution; i++) {
             for (let j = 0; j < resolution; j++) {
                 const index = (i * resolution + j) * 3;
-                newPositions[index] = (i / resolution) * 10 - 5;
-                newPositions[index + 1] = (j / resolution) * 10 - 5;
+                newPositions[index] = (i / resolution) * 20 - 10;
+                newPositions[index + 1] = (j / resolution) * 20 - 10;
                 newPositions[index + 2] = 0;
             }
         }
