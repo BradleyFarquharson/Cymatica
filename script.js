@@ -1,11 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const canvas = document.getElementById('cymaticCanvas');
-    const gl = canvas.getContext('webgl');
-
-    if (!gl) {
-        alert("WebGL isn't available");
-        return;
-    }
+    const container = document.getElementById('threejs-container');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    container.appendChild(renderer.domElement);
 
     let frequency = 440;
     let amplitude = 50;
@@ -13,109 +12,47 @@ document.addEventListener('DOMContentLoaded', () => {
     let resolution = 1000;
     let time = 0;
 
-    const vertexShaderSource = `
-        attribute vec2 a_position;
-        uniform float u_time;
-        uniform float u_frequency;
-        uniform float u_amplitude;
-        uniform float u_damping;
-        uniform vec2 u_resolution;
-
-        void main() {
-            float k = 2.0 * 3.141592653589793 * u_frequency / 343.0;
-            float dx = a_position.x - u_resolution.x / 2.0;
-            float dy = a_position.y - u_resolution.y / 2.0;
-            float r = sqrt(dx * dx + dy * dy);
-            float displacement = u_amplitude * sin(k * r - u_frequency * u_time) * exp(-u_damping * r);
-            vec2 position = a_position + displacement * normalize(vec2(dx, dy));
-            gl_Position = vec4((position / u_resolution * 2.0 - 1.0) * vec2(1, -1), 0, 1);
-            gl_PointSize = 1.0;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(resolution * resolution * 3);
+    for (let i = 0; i < resolution; i++) {
+        for (let j = 0; j < resolution; j++) {
+            const index = (i * resolution + j) * 3;
+            positions[index] = (i / resolution) * 10 - 5;
+            positions[index + 1] = (j / resolution) * 10 - 5;
+            positions[index + 2] = 0;
         }
-    `;
-
-    const fragmentShaderSource = `
-        precision mediump float;
-        void main() {
-            gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-        }
-    `;
-
-    function createShader(gl, type, source) {
-        const shader = gl.createShader(type);
-        gl.shaderSource(shader, source);
-        gl.compileShader(shader);
-        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-            console.error(gl.getShaderInfoLog(shader));
-            gl.deleteShader(shader);
-            return null;
-        }
-        return shader;
     }
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    const material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 });
+    const points = new THREE.Points(geometry, material);
+    scene.add(points);
 
-    function createProgram(gl, vertexShader, fragmentShader) {
-        const program = gl.createProgram();
-        gl.attachShader(program, vertexShader);
-        gl.attachShader(program, fragmentShader);
-        gl.linkProgram(program);
-        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-            console.error(gl.getProgramInfoLog(program));
-            gl.deleteProgram(program);
-            return null;
-        }
-        return program;
-    }
+    camera.position.z = 15;
 
-    const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
-    const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
-    const program = createProgram(gl, vertexShader, fragmentShader);
-
-    const positionLocation = gl.getAttribLocation(program, 'a_position');
-    const timeLocation = gl.getUniformLocation(program, 'u_time');
-    const frequencyLocation = gl.getUniformLocation(program, 'u_frequency');
-    const amplitudeLocation = gl.getUniformLocation(program, 'u_amplitude');
-    const dampingLocation = gl.getUniformLocation(program, 'u_damping');
-    const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
-
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-    function initParticles() {
-        const positions = new Float32Array(resolution * resolution * 2);
+    function updateParticles() {
+        const positions = geometry.attributes.position.array;
+        const k = 2 * Math.PI * frequency / 343; // Wave number (speed of sound ~343 m/s)
         for (let i = 0; i < resolution; i++) {
             for (let j = 0; j < resolution; j++) {
-                const index = (i * resolution + j) * 2;
-                positions[index] = (i / resolution) * gl.canvas.width;
-                positions[index + 1] = (j / resolution) * gl.canvas.height;
+                const index = (i * resolution + j) * 3;
+                const dx = positions[index];
+                const dy = positions[index + 1];
+                const r = Math.sqrt(dx * dx + dy * dy);
+                const displacement = amplitude * Math.sin(k * r - frequency * time) * Math.exp(-damping * r);
+                positions[index + 2] = displacement;
             }
         }
-        gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+        geometry.attributes.position.needsUpdate = true;
     }
 
-    initParticles();
-
-    function draw() {
-        gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-        gl.clear(gl.COLOR_BUFFER_BIT);
-
-        gl.useProgram(program);
-
-        gl.enableVertexAttribArray(positionLocation);
-        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
-
-        gl.uniform1f(timeLocation, time);
-        gl.uniform1f(frequencyLocation, frequency);
-        gl.uniform1f(amplitudeLocation, amplitude);
-        gl.uniform1f(dampingLocation, damping);
-        gl.uniform2f(resolutionLocation, gl.canvas.width, gl.canvas.height);
-
-        gl.drawArrays(gl.POINTS, 0, resolution * resolution);
-
+    function animate() {
+        requestAnimationFrame(animate);
         time += 0.01;
-        requestAnimationFrame(draw);
+        updateParticles();
+        renderer.render(scene, camera);
     }
 
-    draw();
+    animate();
 
     document.getElementById('frequency').addEventListener('input', (e) => {
         frequency = parseFloat(e.target.value);
@@ -135,16 +72,22 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('resolution').addEventListener('input', (e) => {
         resolution = parseInt(e.target.value);
         document.getElementById('resolutionValue').textContent = resolution;
-        initParticles(); // Reinitialize particles when resolution changes
+        const newPositions = new Float32Array(resolution * resolution * 3);
+        for (let i = 0; i < resolution; i++) {
+            for (let j = 0; j < resolution; j++) {
+                const index = (i * resolution + j) * 3;
+                newPositions[index] = (i / resolution) * 10 - 5;
+                newPositions[index + 1] = (j / resolution) * 10 - 5;
+                newPositions[index + 2] = 0;
+            }
+        }
+        geometry.setAttribute('position', new THREE.BufferAttribute(newPositions, 3));
     });
 
     window.addEventListener('resize', () => {
-        gl.canvas.width = gl.canvas.clientWidth;
-        gl.canvas.height = gl.canvas.clientHeight;
-        initParticles();
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
     });
-
-    gl.canvas.width = gl.canvas.clientWidth;
-    gl.canvas.height = gl.canvas.clientHeight;
 });
 
