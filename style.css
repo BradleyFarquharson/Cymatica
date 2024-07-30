@@ -1,47 +1,40 @@
 body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #f0f0f0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
 }
 
-.container {
-  display: flex;
-  width: 100%;
-  max-width: 1200px;
-  height: 100%;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
+#container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 #threejs-container {
-  flex: 1;
-  background-color: #000;
+    width: 800px;
+    height: 800px;
+    background-color: black;
+    border-radius: 10px;
 }
 
 .controls {
-  flex: 0 0 300px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+    margin-left: 20px;
 }
 
 .controls div {
-  margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 label {
-  display: block;
-  margin-bottom: 5px;
+    display: block;
+    font-family: Arial, sans-serif;
+    margin-bottom: 5px;
 }
 
 input[type="range"] {
-  width: 100%;
+    width: 200px;
 }
 
