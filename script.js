@@ -22,25 +22,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const fragmentShader = `
     uniform float uTime;
-    uniform sampler2D uVelocity;
-    uniform sampler2D uPressure;
+    uniform float uFrequency;
+    uniform float uAmplitude;
+    uniform float uDamping;
     varying vec2 vUv;
 
     void main() {
-      vec2 velocity = texture2D(uVelocity, vUv).xy;
-      vec2 pressure = texture2D(uPressure, vUv).xy;
-
-      // Compute new velocity and pressure using Navier-Stokes equations
-      vec2 newVelocity = velocity + 0.01 * (pressure - velocity);
-
-      gl_FragColor = vec4(newVelocity, 0.0, 1.0);
+      float x = vUv.x * 10.0 - 5.0;
+      float y = vUv.y * 10.0 - 5.0;
+      float r = sqrt(x * x + y * y);
+      float wave = sin(uFrequency * r - uTime) * exp(-uDamping * r);
+      float intensity = (wave + 1.0) / 2.0 * uAmplitude;
+      gl_FragColor = vec4(vec3(intensity), 1.0);
     }
   `;
 
   const uniforms = {
     uTime: { value: 0.0 },
-    uVelocity: { value: null },
-    uPressure: { value: null }
+    uFrequency: { value: 440.0 },
+    uAmplitude: { value: 50.0 },
+    uDamping: { value: 0.95 }
   };
 
   const material = new THREE.ShaderMaterial({
@@ -64,22 +65,32 @@ document.addEventListener('DOMContentLoaded', () => {
   animate();
 
   function updateUniforms() {
-    // Update uniform values based on user input
-    // This function can be expanded to include more uniforms
+    uniforms.uFrequency.value = parseFloat(document.getElementById('frequency').value);
+    uniforms.uAmplitude.value = parseFloat(document.getElementById('amplitude').value);
+    uniforms.uDamping.value = parseFloat(document.getElementById('damping').value);
   }
 
   document.getElementById('frequency').addEventListener('input', () => {
-    document.getElementById('frequencyValue').textContent = document.getElementById('frequency').value;
+    const frequencyValueElement = document.getElementById('frequencyValue');
+    if (frequencyValueElement) {
+      frequencyValueElement.textContent = document.getElementById('frequency').value;
+    }
     updateUniforms();
   });
 
   document.getElementById('amplitude').addEventListener('input', () => {
-    document.getElementById('amplitudeValue').textContent = document.getElementById('amplitude').value;
+    const amplitudeValueElement = document.getElementById('amplitudeValue');
+    if (amplitudeValueElement) {
+      amplitudeValueElement.textContent = document.getElementById('amplitude').value;
+    }
     updateUniforms();
   });
 
   document.getElementById('damping').addEventListener('input', () => {
-    document.getElementById('dampingValue').textContent = document.getElementById('damping').value;
+    const dampingValueElement = document.getElementById('dampingValue');
+    if (dampingValueElement) {
+      dampingValueElement.textContent = document.getElementById('damping').value;
+    }
     updateUniforms();
   });
 
