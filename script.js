@@ -22,17 +22,17 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 0; i < resolution; i++) {
         for (let j = 0; j < resolution; j++) {
             const index = (i * resolution + j) * 3;
-            positions[index] = (i / resolution) * 20 - 10;
-            positions[index + 1] = (j / resolution) * 20 - 10;
+            positions[index] = (i / resolution) * 2 - 1;
+            positions[index + 1] = (j / resolution) * 2 - 1;
             positions[index + 2] = 0;
         }
     }
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    const material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.05 });
+    const material = new THREE.PointsMaterial({ color: 0xffffff, size: 0.01 });
     const points = new THREE.Points(geometry, material);
     scene.add(points);
 
-    camera.position.z = 15;
+    camera.position.z = 2;
 
     function updateParticles() {
         const positions = geometry.attributes.position.array;
@@ -81,8 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let i = 0; i < resolution; i++) {
             for (let j = 0; j < resolution; j++) {
                 const index = (i * resolution + j) * 3;
-                newPositions[index] = (i / resolution) * 20 - 10;
-                newPositions[index + 1] = (j / resolution) * 20 - 10;
+                newPositions[index] = (i / resolution) * 2 - 1;
+                newPositions[index + 1] = (j / resolution) * 2 - 1;
                 newPositions[index + 2] = 0;
             }
         }
